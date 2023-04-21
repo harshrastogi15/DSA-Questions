@@ -1,0 +1,684 @@
+CODE TO COMPILE:
+CPP FILE: g++ -lglut -lGL -lGLU -lGLEW <PROGRAM NAME>.cpp -o <O/P NAME>.out
+C FILE: gcc -lglut -lGL -lGLU -lGLEW <PROGRAM NAME>.cpp -o <O/P NAME>.out
+
+CODE TO RUN:
+./<O/P NAME>.out
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write a graphic program to display circle, triangle, line parallel and perpendicular
+    OR
+Q Draw and fill different shapes.
+code:
+
+#include<GL/glut.h>
+#include<cmath>
+
+int wt=900, ht=700;
+
+void init(){
+    glClearColor(0, 0, 0, 1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, wt, 0, ht);
+}
+
+void line(int x1, int y1, int x2, int y2, double r, double g, double b){
+    glColor3f(r/255, g/255, b/255);
+    glBegin(GL_LINES);
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y2);
+    glEnd();
+    glFlush();
+}
+
+void circle(int xc, int yc, int r){
+    glBegin(GL_POLYGON);
+        glColor3f(0.0f, 0.5f, 0.5f);
+        float theta;
+        for(int i=0; i<360; i++){
+            theta = i*3.14/180;
+            glVertex2f(xc+r*cos(theta), yc+r*sin(theta));
+        }
+    glEnd();
+    glFlush();
+}
+
+void triangle(int x1, int y1, int x2, int y2, int x3, int y3){
+    glBegin(GL_TRIANGLES);
+        glColor3f(0.5f, 0.0f, 0.0f);
+        glVertex2i(x1, y1);
+        glVertex2i(x2, y2);
+        glVertex2i(x3, y3);
+    glEnd();
+    glFlush();
+}
+
+void rectangle(int x1, int y1, int x2, int y2){
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 1.0f, 0.0f);
+        glVertex2i(x1, y1);
+        glVertex2i(x1, y2);
+        glVertex2i(x2, y2);
+        glVertex2i(x2, y1);
+    glEnd();
+    glFlush();
+}
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    line(400, 500, 700, 500, 0, 255, 0);
+    line(600, 600, 600, 400, 120, 150, 150);
+    circle(150, 150, 100);
+    triangle(300, 300, 400, 400, 500, 300);
+    rectangle(500, 50, 800, 250);
+}
+
+int main(int argc, char **argv){
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(wt, ht);
+    glutInitWindowPosition(0, 0);
+    glutCreateWindow("Shapes");
+    init();
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q implement DDA algorithm
+code:
+#include<GL/glut.h>
+#include<stdio.h>
+#include<stdlib.h>
+
+int wt=900, ht=700;
+void init(){
+    glClearColor(0, 0, 0, 1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, wt, 0, ht);
+}
+
+float xa=10, ya=10, xb=400, yb=500;
+void display(){
+    float dy=yb-ya, dx=xb-xa, m, x, y, xin, yin;
+    m = (abs(dx)>abs(dy))? abs(x) : abs(dy);
+    xin = dx/m; yin = dy/m;
+    x=xa; y=ya;
+
+    glBegin(GL_POINTS);
+        glVertex2i(x, y);
+    glEnd();
+
+    for(int k=1; k<=m; k++){
+        x += xin; y += yin;
+        glBegin(GL_POINTS);
+            glVertex2d(x, y);
+        glEnd();
+    }
+
+    glFlush();
+}
+
+int main(int argc, char **argv){
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(wt, ht);
+    glutInitWindowPosition(0, 0);
+    glutCreateWindow("DDA Line Algorithm");
+    init();
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q implement Midpoint circle generation algorithm
+code:
+#include <GL/glut.h>
+
+int wt = 900, ht = 700;
+void init(){
+	glClearColor(0, 0, 0, 1);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, wt, 0, ht);
+}
+
+int pntx1 = 100, pnty1 = 100, r = 100;
+void draw(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(0.0f, 0.4f, 0.2f);
+	glPointSize(6.0);
+
+	glBegin(GL_LINES);
+		float xa = 0.0, ya = 0.0, xb = 5.0, yb = 5.0;
+		glVertex2d(xa, ya);
+		glVertex2d(xb, yb);
+	glEnd();
+}
+
+void plot(int x, int y){
+	glBegin(GL_POINTS);
+		glVertex2i(x + pntx1, y + pnty1);
+	glEnd();
+}
+
+void midPointCircle(){
+	int x = 0, y = r;
+	float m = 1.25 - r;
+	plot(x, y);
+
+	while (y > x){
+        x++;
+		if (m < 0)
+			m += 2 * x + 1;
+		else{
+			y--;
+			m += 2 * (x - y) + 1;
+		}
+
+		plot(x, y); plot(-x, y);
+		plot(x, -y); plot(-x, -y);
+		plot(y, x); plot(-y, x);
+		plot(-y, -x); plot(y, -x);
+	}
+}
+
+void display(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	midPointCircle();
+	glutSwapBuffers();
+	glFlush();
+}
+
+int main(int argc, char **argv){
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(wt, ht);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("Midpoint Circle Algorithm");
+	init();
+	glutDisplayFunc(display);
+	glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q implement Bresenham's circle algorithm
+code:
+#include <GL/glut.h>
+
+int wt=900, ht=700, xc=320, yc=240;
+void init(){
+	glClearColor(0, 0, 0, 1);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, wt, 0, ht);
+}
+
+void plot(int x, int y){
+    glBegin(GL_POINTS);
+    glVertex2i(xc+x, yc+y); glVertex2i(xc-x, yc-y);
+    glVertex2i(xc+x, yc-y); glVertex2i(xc+y, yc+x);
+    glVertex2i(xc+y, yc-x); glVertex2i(xc-y, yc-x);
+    glVertex2i(xc-x, yc+y); glVertex2i(xc-y, yc+x);
+    glEnd();
+}
+
+void bresenham_circle(int r){
+    int x = 0, y = r;
+	float m = 1.25 - r;
+	plot(x, y);
+
+	while (y > x){
+        x++;
+		if(m<0) m += 2*x + 1;
+		else{
+			y--;
+			m += 2*(x-y) + 1;
+		}
+
+		plot(x, y);
+	}
+
+    glFlush();
+}
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    int r2=200;
+    bresenham_circle(r2);
+}
+
+int main(int argc, char **argv){
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowSize(wt, ht);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("Bresenham's Circle Algorithm");
+	init();
+	glutDisplayFunc(display);
+	glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write c program for displaying text in different size, color and font using opengl
+code:
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <GL/glut.h>
+
+int wt = 900, ht = 700;
+void display_text(const char* text, void* font) {
+    for (const char* p = text; *p; p++)
+        glutBitmapCharacter(font, *p);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    display_text("Hello, World!", GLUT_BITMAP_HELVETICA_18);
+    display_text("OpenGL is Awesome!", GLUT_BITMAP_TIMES_ROMAN_24);
+    glutSwapBuffers();
+}
+
+void init() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, wt, 0, ht);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(wt, ht);
+    glutCreateWindow("OpenGL Text");
+    glutDisplayFunc(display);
+    init();
+    glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write a C-program for creating simple two dimensional shape of house,car etc using openGL
+code:
+#include<iostream>
+#include<GL/glut.h>
+
+void myDisplay(void){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPointSize(4.0);
+
+    // Base
+    glColor3f(0.65f, 0.65f, 0.65f);
+    glBegin(GL_POLYGON);
+        glVertex2i(40, 40);
+        glVertex2i(40, 200);
+        glVertex2i(320, 200);
+        glVertex2i(320, 40);
+    glEnd();
+
+    // Window
+    glColor3f(0.48f, 0.65f, 1.0f);
+    glBegin(GL_POLYGON);
+        glVertex2i(220, 60);
+        glVertex2i(220, 150);
+        glVertex2i(300, 150);
+        glVertex2i(300, 60);
+    glEnd();
+
+    // Door
+    glColor3f(0.58f, 0.29f, 0.0f);
+    glBegin(GL_POLYGON);
+        glVertex2i(130, 40);
+        glVertex2i(130, 160);
+        glVertex2i(180, 160);
+        glVertex2i(180, 40);
+    glEnd();
+
+    // Shed
+    glColor3f(0.58f, 0.29f, 0.20f);
+    glBegin(GL_POLYGON);
+        glVertex2i(10, 200);
+        glVertex2i(340, 200);
+        glVertex2i(200, 390);
+    glEnd();
+
+    glFlush();
+}
+
+int main(int argc, char **argv){
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(1200, 740);
+    glutInitWindowPosition(200, 150);
+
+    glutCreateWindow("Hut: ");
+    glutDisplayFunc(myDisplay);
+    glClearColor(0.65, 0.85, 0.90, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0.0, 400.0, 0.0, 400.0);
+    glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write a C-program for performing the basic 2D transformations such as translation, Scaling, Rotation, shearing and reflection for a given 2D object using openGL
+code:
+#include <GL/glut.h>
+int width = 800;
+int height = 600;
+float objectPoints[][2] = { {-0.25, -0.25}, {0.25, -0.25}, {0.25, 0.25}, {-0.25, 0.25} }; // Object points
+float transformedPoints[][2] = { {-0.25, -0.25}, {0.25, -0.25}, {0.25, 0.25}, {-0.25, 0.25} }; // Transformed points
+float translationX = 0.0f;
+float translationY = 0.0f;
+float scaleX = 1.0f;
+float scaleY = 1.0f;
+float rotationAngle = 0.0f;
+float shearX = 0.0f;
+float shearY = 0.0f;
+bool reflectionX = false;
+bool reflectionY = false;
+
+void drawObject() {
+    glColor3f(0.2f, 0.5f, 0.7f); // Set color to blue
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 4; i++) {
+        glVertex2f(transformedPoints[i][0], transformedPoints[i][1]);
+    }
+    glEnd();
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT); // Clear the screen
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // Apply transformations
+    glTranslatef(translationX, translationY, 0.0);
+    glScalef(scaleX, scaleY, 1.0);
+    glRotatef(rotationAngle, 0.0, 0.0, 1.0);
+    glTranslatef(shearX, shearY, 0.0);
+    if (reflectionX) glScalef(-1.0, 1.0, 1.0);
+    if (reflectionY) glScalef(1.0, -1.0, 1.0);
+
+    drawObject();
+
+    glFlush(); // Flush the buffer to display the transformed object
+}
+
+void reshape(int w, int h) {
+    width = w;
+    height = h;
+    glViewport(0, 0, width, height); // Set the viewport to the window size
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1, 1, -1, 1); // Set the orthographic view to a 2x2 square centered at the origin
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv); // Initialize GLUT
+    glutInitWindowSize(width, height); // Set the window size
+    glutCreateWindow("2D Transformations"); // Create a window with the title "2D Transformations"
+    glutDisplayFunc(display); // Set the display function
+    glutReshapeFunc(reshape); // Set the reshape function
+    glutMainLoop(); // Start the main loop
+    return 0;
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q write a C- program to implement the Scan line polygon fill algorithm for coloring a given object using openGL
+Code:
+#include <GL/glut.h>
+#include <stdio.h>
+
+int wt=800, ht=600, N=0;
+float vrtx[10][2], fill[3] = {0.2, 0.5, 0.7};
+
+void drawPolygon() {
+    glColor3f(0.0, 0.0, 0.0);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < N; i++)
+        glVertex2f(vrtx[i][0], vrtx[i][1]);
+
+    glEnd();
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawPolygon();
+    glFlush();
+}
+
+void reshape(int w, int h) {
+    wt = w;
+    ht = h;
+    glViewport(0, 0, wt, ht);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, wt, 0, ht);
+}
+
+void scanLineFill(int x, int y) {
+    float pxc[3];
+    glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, pxc);
+
+    if (pxc[0] == fill[0] && pxc[1] == fill[1] && pxc[2] == fill[2])
+        return;
+
+    glColor3fv(fill);
+    glBegin(GL_POINTS);
+    glVertex2f(x, y);
+    glEnd();
+    glFlush();
+
+    scanLineFill(x+1, y); scanLineFill(x-1, y);
+    scanLineFill(x, y+1); scanLineFill(x, y-1);
+}
+
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+        scanLineFill(x, ht - y);
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitWindowSize(wt, ht);
+    glutCreateWindow("Scan Line Polygon Fill");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutMouseFunc(mouse);
+    glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write a program to implement Sutherland Hodgeman polygon clipping algorithm.
+code:
+#include <iostream>
+using namespace std;
+
+const int MX = 20;
+
+int x_intersect(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
+    int num = (x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4);
+    int den = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);
+    return num / den;
+}
+
+int y_intersect(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
+    int num = (x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4);
+    int den = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);
+    return num / den;
+}
+
+void clip(int p_pts[][2], int &p_sz, int x1, int y1, int x2, int y2){
+    int n_pts[MX][2], new_p_sz = 0;
+    for (int i = 0; i < p_sz; i++){
+        int k = (i + 1) % p_sz;
+        int ix = p_pts[i][0], iy = p_pts[i][1];
+        int kx = p_pts[k][0], ky = p_pts[k][1];
+
+        int i_pos = (x2 - x1) * (iy - y1) - (y2 - y1) * (ix - x1);
+        int k_pos = (x2 - x1) * (ky - y1) - (y2 - y1) * (kx - x1);
+
+        if (i_pos < 0 && k_pos < 0){
+            n_pts[new_p_sz][0] = kx;
+            n_pts[new_p_sz][1] = ky;
+            new_p_sz++;
+        }
+
+        else if (i_pos >= 0 && k_pos < 0){
+            n_pts[new_p_sz][0] = x_intersect(x1, y1, x2, y2, ix, iy, kx, ky);
+            n_pts[new_p_sz][1] = y_intersect(x1, y1, x2, y2, ix, iy, kx, ky);
+            new_p_sz++;
+
+            n_pts[new_p_sz][0] = kx;
+            n_pts[new_p_sz][1] = ky;
+            new_p_sz++;
+        }
+
+        else if (i_pos < 0 && k_pos >= 0){
+            n_pts[new_p_sz][0] = x_intersect(x1, y1, x2, y2, ix, iy, kx, ky);
+            n_pts[new_p_sz][1] = y_intersect(x1, y1, x2, y2, ix, iy, kx, ky);
+            new_p_sz++;
+        }
+    }
+
+    p_sz = new_p_sz;
+    for (int i = 0; i < p_sz; i++){
+        p_pts[i][0] = n_pts[i][0];
+        p_pts[i][1] = n_pts[i][1];
+    }
+}
+
+void suthHodgClip(int p_pts[][2], int p_sz, int c_pts[][2], int c_sz){
+    for (int i = 0; i < c_sz; i++){
+        int k = (i + 1) % c_sz;
+        clip(p_pts, p_sz, c_pts[i][0], c_pts[i][1], c_pts[k][0], c_pts[k][1]);
+    }
+
+    for (int i = 0; i < p_sz; i++)
+        cout << '(' << p_pts[i][0] << ", " << p_pts[i][1] << ") ";
+    cout << endl;
+}
+
+int main(){
+    int p_sz = 3;
+    int p_pts[20][2] = {{100, 150}, {200, 250}, {300, 200}};
+    int c_sz = 4;
+    int c_pts[][2] = {{150, 150}, {150, 200}, {200, 200}, {200, 150}};
+    suthHodgClip(p_pts, p_sz, c_pts, c_sz);
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Write a C-program for generating a curve for a given set of control points.
+Code:
+#include <GL/glut.h>
+#include <cmath>
+
+float cpts[][2] = { {-0.6, -0.6}, {-0.2, 0.6}, {0.2, 0.6}, {0.6, -0.6} };
+int N = sizeof(cpts) / sizeof(cpts[0]);
+
+int bin_coeff(int n, int k) {
+    int res = 1;
+    if (k > n - k)
+        k = n - k;
+
+    for (int i = 0; i < k; i++) {
+        res *= (n - i);
+        res /= (i + 1);
+    }
+    return res;
+}
+
+void calculateBezierPoint(float t, float pts[]) {
+    pts[0] = 0.0;
+    pts[1] = 0.0;
+    for (int i = 0; i < N; i++) {
+        float coeff = bin_coeff(N-1, i)*pow(t, i)*pow(1-t, N-1-i);
+        pts[0] += coeff * cpts[i][0];
+        pts[1] += coeff * cpts[i][1];
+    }
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+
+    glBegin(GL_LINE_STRIP);
+    for (float t = 0.0; t <= 1.0; t += 0.01) {
+        float pts[2];
+        calculateBezierPoint(t, pts);
+        glVertex2f(pts[0], pts[1]);
+    }
+    glEnd();
+
+    glFlush();
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(400, 400);
+    glutCreateWindow("Bézier Curve");
+    gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+    glutDisplayFunc(display);
+    glutMainLoop();
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q Using Midpoint ellipse generation algorithm which is a variant of Bresenham's line algorithm, write a C- Program to generate pixel activation list for drawing a ellipse
+code:
+#include <stdio.h>
+
+void generateEllipsePixelList(int xc, int yc, int a, int b) {
+    int x=0, y=b;
+    int p = b*b - a*a*b + 0.25*a*a;
+    while (2*b*b*x < 2*a*a*y) {
+        printf("(%d, %d)\n", x + xc, y + yc);
+        printf("(%d, %d)\n", -x + xc, y + yc);
+        printf("(%d, %d)\n", x + xc, -y + yc);
+        printf("(%d, %d)\n", -x + xc, -y + yc);
+
+        x++;
+        if (p < 0) {
+            p += 2*b*b*x + b*b;
+        } else {
+            y--;
+            p += 2*b*b*x - 4*a*a*y + b*b;
+        }
+    }
+
+    p = b*b*(x + 0.5)*(x + 0.5) + a*a*(y-1)*(y-1) - a*a*b*b;
+    while (y >= 0){
+        printf("(%d, %d)\n", x + xc, y + yc);
+        printf("(%d, %d)\n", -x + xc, y + yc);
+        printf("(%d, %d)\n", x + xc, -y + yc);
+        printf("(%d, %d)\n", -x + xc, -y + yc);
+
+        y--;
+        if (p > 0)
+            p += a*a - 4*a*a*y;
+        else {
+            x++;
+            p += 2*b*b*x - 4*a*a*y + a*a;
+        }
+    }
+}
+
+int main() {
+    int xc=0, yc=0, a=6, b=4;
+    printf("Pixel Activation List for Ellipse:\n");
+    generateEllipsePixelList(xc, yc, a, b);
+}
